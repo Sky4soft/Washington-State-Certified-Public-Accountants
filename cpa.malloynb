@@ -1,0 +1,240 @@
+>>>malloy
+
+
+source: CPA is duckdb.table('Wa_CPA3.csv') extend {
+    
+    dimension: First_Name is `First Name`
+    dimension: Board_Order is `Board Order`
+    dimension: Expiration_Date is `Expiration Date`
+    dimension: Last_Name is `Last Name`
+    dimension: Last_Updated is `Last Updated`
+    dimension: License_Number is `License Number`
+    dimension: Middle_Name is `Middle Name`
+    dimension: Original_Issue_Date is `Original Issue Date`
+    dimension: Preferred_Name is `Preferred Name`
+    dimension: Clean_City is 
+               pick "Unknown" when City is null
+               else ucase!(City)
+    dimension: Clean_State is 
+               pick "Outside USA" when State is null
+               pick "Unknown" when City is null and State is null
+               else ucase!(State)
+    dimension: `Days of Service` is days(`Original Issue Date` to `Expiration Date`)          
+    dimension: `Years of Service` is `Days of Service`/365
+    dimension: Name is concat(`First Name`,' ',`Last Name`)
+    measure: License is count(License_Number)
+    measure: Percentage is License / all(License)
+    measure: YearsInService is avg(days(Original_Issue_Date to Expiration_Date) / 365)
+    measure: Total is count()
+
+    view: Original_Issue_Date_View is {
+    
+    group_by: Status
+    aggregate: License, Percentage is License / all(License)
+    order_by: License desc
+    }
+
+    view: CPA_By_Status is {
+        group_by: `CPA Status` is Status    
+        aggregate: License
+        limit: 400000
+    }
+
+    view: CPA_Active_Status is {
+        group_by: `CPA Status` is Status
+        aggregate: License
+        where: Status = 'Licensed to practice Revoked per Board Order'
+        or Status = 'Suspendedn per Board Order'
+        limit: 400000
+    }
+    view: CPA_By_City is {
+        group_by: `City` is Clean_City
+        aggregate: License
+        limit: 400000
+    }
+
+    view: CPA_By_Country is {
+        group_by: `Country` is Country
+        aggregate: License
+        limit: 400000
+    }
+
+    view: CPA_Average_Years_of_Service is {
+        group_by: Status
+        aggregate: YearsInService
+    }
+}
+>>>malloy
+# dashboard
+
+run: CPA -> {
+    
+    aggregate: `The dataset contains 47,925 CPA license records, including details on license holders' names, locations, and license statuses. It covers various states and countries, with expiration dates recorded for 46,501 entries. Some licenses are marked as Lapsed Licensee, indicating non-renewal. Additionally, only 78 records include data under the Board Order column. This dataset provides insights into CPA licensing trends, including renewal patterns and geographical distribution.` is License
+   
+    nest: `Leading 10 Cities for CPAs: This data summarizes the number of CPA licenses by city, state, and country. Seattle, WA, has the highest number of CPA licenses (5,734), followed by Bellevue, WA (1,714), and Spokane, WA (1,357). Additionally, international locations such as Tokyo, Japan (2,187), and Seoul, South Korea (1,360), also have significant numbers of CPA licenses. The majority of licenses are concentrated in Washington state, with key cities including Kirkland, Tacoma, Redmond, Renton, and Vancouver. This distribution highlights the prominence of CPAs in major business hubs both within the U.S. and internationally.` is {
+        group_by: `City` is Clean_City, `State` is Clean_State, Country
+        aggregate: License
+        limit: 10
+    }
+
+    # line_chart
+    nest: `Trend: This trend data provides a historical timeline spanning from 1910 to 2010, capturing a century of changes that could be used to analyze patterns over time. By grouping data into decades, this trend makes it easier to observe long-term shifts, such as increases or decreases in events like licenses issued, business openings, or inmate deaths. Such decade-based analysis is especially useful for understanding how external factors—like economic downturns, regulatory changes, technological advancements, or public health crises—may have influenced the data. This summary format helps to spot patterns, identify anomalies, and connect historical context to the data, making it a valuable tool for anyone conducting trend analysis in a time series dataset.` is {
+        group_by: `Year` is `Original Issue Date`.year
+        aggregate: License   
+    } 
+    nest: `Annual Growth & Decline: This table summarizes the annual difference in the number of CPA licenses issued from 2012 to 2025, highlighting year-over-year changes. The data reveals fluctuations, with some years experiencing growth (positive difference) and others seeing declines (negative difference). For example, 2024 saw a sharp increase of 1,269 licenses compared to 2025, while 2020 and 2021 showed notable declines, likely influenced by external factors such as the COVID-19 pandemic. This type of analysis helps to identify patterns, such as economic cycles, changes in professional demand, or regulatory impacts, making it a valuable tool for understanding licensing trends over time.` is {
+        group_by: `Year` is `Original Issue Date`.year
+        aggregate: License
+        calculate: `Difference` is (License - lag(License)) 
+    }
+    # bar_chart 
+    nest: `Current CPA Licensing Status: This graph highlights the current status of CPA licenses, showing that most licenses are either active or lapsed. Other statuses, like retired, suspended, or deceased, reflect different stages of a licensee’s career. This summary helps understand how many CPAs stay active, how many leave the profession, and how license status changes over time.` is {
+        group_by: Status
+        aggregate: License
+    }
+    nest: `CPA License Status Breakdown by Percentage: This data summarizes the percentage breakdown of CPA license statuses in Washington. Over 50% of licenses are held by individuals actively practicing public accounting, while approximately 23% are lapsed licensees who no longer maintain an active license. Smaller portions represent retired licensees (about 10%) and lapsed certificate holders, indicating individuals who once qualified but never maintained full CPA status. Less common statuses, such as suspended licenses, converted licenses, and deceased licensees, make up only a fraction of a percent each. This breakdown helps to understand the overall health and retention of the CPA population, highlighting how many professionals remain actively engaged in the field versus those who exit, retire, or lose their license over time.` is {
+        group_by: Status
+        aggregate: License 
+        # percent
+        Percentage is all(License, Status) / all(License)
+    }
+    # bar_chart
+    nest: `Highest Concentration of Licensed CPAs: This data summarizes the top 20 cities with the highest number of CPA licenses in the state of Washington, as recorded in the Wa_CPA3.csv dataset. The analysis counts how many licensed CPAs are based in each city, highlighting which locations have the largest concentrations of accounting professionals. The results are sorted in descending order, showing the most CPA-populated cities at the top, with cities like Seattle, Bellevue, and Spokane likely appearing among the leaders. This type of summary helps identify professional hubs where accounting talent is concentrated, which could be valuable for employers, firms, and policymakers looking to understand the geographic distribution of CPAs in Washington.` is {
+        group_by: City
+        aggregate: total_CPAs is count()
+        order_by: total_CPAs desc
+        limit: 20
+    }
+    nest: `Number of Licensed CPAs Changed Over Time: This data summarizes the number of CPA licenses issued each year from 2016 to 2025. The data shows fluctuations in licensing activity, with some years seeing notable increases, such as 2024 with 1,794 licenses issued, while other years, like 2020, show a slight decline, possibly influenced by the COVID-19 pandemic. The data for 2025 is lower so far, with only 525 licenses issued, likely because the year is not yet complete. Overall, this trend helps to understand the pace of CPA licensing over time, reflecting economic conditions, regulatory changes, and shifts in demand for accounting professionals.` is {
+        group_by: Original_Issue_Date.year
+        aggregate: License
+        limit: 10
+    }
+    # bar_chart
+    nest: `Global Distribution of Washington CPAs: This data highlights the top countries where Washington state CPAs are located, demonstrating the global reach of Washington's CPA licenses. As expected, the United States has the largest number of licensed CPAs, followed by countries such as Japan, South Korea, Hong Kong, and Canada, indicating strong international connections, particularly in Asia. Beyond these top countries, Washington CPAs are also present in Europe, the Middle East, Africa, and Latin America, covering a total of over 70 countries. This widespread distribution reflects the global mobility of accounting professionals and the international recognition of Washington’s CPA credential, showing that many CPAs either work abroad or hold Washington licenses while living internationally.` is {
+        group_by: Country
+        aggregate: Total
+    }
+    nest: `Global Distribution of Washington CPAs: This data highlights the top countries where Washington State CPAs are located. Unsurprisingly, the United States accounts for the overwhelming majority, with 36,995 CPAs. However, international presence is significant, particularly in Japan (4,653), South Korea (1,811), and Hong Kong (1,307). Other notable countries include Canada, China, and India, showing that Washington CPA licenses are recognized and held globally. This reflects the international mobility of accounting professionals and the global relevance of the Washington CPA credential, particularly in Asia and other key economic regions.` is {
+        group_by: Country
+        aggregate: Total
+    }
+    nest: `Least Represented Countries for WA CPAs: This data highlights the countries with the smallest number of Washington State CPAs, each with only one licensed individual. These bottom countries include a diverse mix, such as Colombia, Russia, Bangladesh, South Africa, and Mauritius, reflecting the global reach of Washington CPA licenses, even in countries with minimal representation. While the numbers are small, the presence of Washington-licensed CPAs in these regions underscores the international recognition of the credential and the broad geographic spread of the CPA profession.` is {
+        group_by: Country
+        aggregate: Total
+        order_by: Total asc
+    }
+    nest: `Top Cities for CPA License Holders in WA: This data summarizes the top city distribution for Washington state CPAs, showing which cities have the highest number of licensed CPAs. Seattle leads with 5,747 CPAs, followed by Tokyo with 2,191, which highlights the presence of internationally located Washington-licensed CPAs. Other major cities in Washington, such as Bellevue (1,720), Spokane (1,363), and Kirkland (792), also show strong CPA representation. The inclusion of cities like Seoul further emphasizes the global reach of Washington-issued CPA licenses. This data provides valuable insights into where the CPA workforce is concentrated, both domestically and internationally.` is {
+        group_by: Clean_City 
+        aggregate: Total
+    }
+    # shape_map
+    nest: `Geographic Distribution of CPA Licenses: This data represents a state distribution shape map, indicating that there are 26,397 total CPA licenses recorded in the dataset. This likely reflects the total number of licensed individuals across all states. The shape map visualization helps to geographically display where these licenses are concentrated, providing a spatial view of how CPAs are distributed. This total count serves as a baseline for further analysis, such as comparing license counts by state or identifying regions with higher or lower concentrations of licensed CPAs.` is {
+        group_by: State
+        aggregate: Total
+    }
+     nest: `CPAs with the Shortest Licensing Duration: This data summarizes the shortest periods of time that individuals have held a CPA license. The years of service range from approximately 0.2 years to 0.575 years, meaning some licenses were held for only a few months before being allowed to lapse, revoked, or surrendered. This highlights that while many CPAs maintain their licenses for years or decades, a small portion exit the profession very quickly after obtaining their credential. These short service periods may reflect factors such as career changes, failure to meet ongoing requirements, disciplinary actions, or personal decisions to leave the field shortly after licensing.` is {
+        group_by: `Years of Service` 
+        order_by: `Years of Service` asc
+    }
+     nest: `Geographic distribution of CPA licenses by status: This data summarizes the geographic distribution of CPA licenses by status. It shows that the vast majority of both active (licensed to practice public accounting) and lapsed licenses come from the United States, with smaller counts from countries such as Japan, South Korea, Canada, China, Hong Kong, and Taiwan. This highlights that while Washington State CPAs are primarily U.S.-based, there is also a global presence, reflecting international professionals who either obtained licenses through Washington State or maintained licenses while living abroad. The United States consistently has the highest count across all statuses, making it the primary source of Washington CPA licenses.` is {
+        group_by: Status
+        aggregate: Counted is count()
+        # tooltip
+        # bar_chart {y.independent}
+        nest: `Status by Country` is {
+            group_by: Country
+            aggregate: Counted is count()
+            limit: 7
+    }
+    }
+    nest: `Current status distribution of CPA licenses in Washington State: This data summarizes the current status distribution of CPA licenses in Washington State. The largest portion (23.2%) are lapsed licensees, followed by retired licensees (9.9%) and lapsed certificate holders (9.5%), showing that a significant number of CPAs have either left the profession or failed to maintain their credentials. Smaller percentages represent individuals with inactive licenses (1.4%), those who were suspended (0.3%), and a few with statuses such as converted to CPA, lapsed registration, or revoked licenses. This breakdown highlights the diverse career paths and outcomes for Washington CPAs, with many eventually retiring, letting their licenses lapse, or leaving the profession entirely.` is Original_Issue_Date_View
+
+    nest: `Top 5 Longest-Serving CPAs Still Licensed: This data highlights the top five currently licensed CPAs with the longest tenure in Washington State. These professionals have maintained their CPA credentials for over 63 years, demonstrating exceptional career longevity and dedication to the field. Edward Rich holds the longest active CPA license, having been certified since August 7, 1959, with nearly 68 years of service. Glen Utzman, Robert Rayner, Darlene Johnson, and John Tiscornia have also maintained their licenses for over six decades, with expiration dates extending to 2027 or 2028. This data underscores the long-term commitment of seasoned CPAs and highlights how some professionals continue to maintain active licenses well into retirement, contributing to the stability and legacy of the accounting profession.` is {
+        group_by: Name, Status, Original_Issue_Date, Expiration_Date
+        aggregate: `Years of Service` is YearsInService
+        where: Status = 'Licensed to practice public accounting'
+        order_by: `Years of Service` desc
+        limit: 6
+    } 
+     
+    nest: `Top 5 CPAs with the Longest Careers Before Revocation or Suspension: This data highlights the top five CPAs with the longest tenure whose licenses were either revoked or suspended by the Washington State Board of Accountancy. These individuals had decades-long careers before facing disciplinary action. Steven Shimizu held his CPA license for 46 years before it was revoked in 2022. George Betts and Paul Elliott had licenses for over 40 years before revocation or suspension. Joseph Schmitz's license was suspended after nearly 38 years in practice. This dataset provides insights into long-serving CPAs who faced disciplinary measures, reflecting the importance of compliance and ethical standards in the accounting profession.` is {
+        group_by: Name, Status, Original_Issue_Date, Expiration_Date
+        aggregate: `Years of Service` is YearsInService
+        where: Status = 'Licensed to practice Revoked per Board Order'
+        or Status = 'Suspended per Board Order'
+        order_by: `Years of Service` desc
+        limit: 6
+    }
+}
+>>>malloy
+# dashboard
+run: CPA -> {
+    aggregate: `Average CPA License Duration` is avg(`Years of Service`)
+nest: `CPAs with the Longest Active Licenses: This data highlights the longest-serving CPA license holders in Washington State, showcasing individuals who have held their licenses for over 64 years. The top license holder, Delmar Pearson from Yakima, has maintained their license for nearly 70 years. Other long-serving CPAs come from cities across the state, including E Wenatchee, Redmond, Issaquah, Seattle, Spokane, and Tacoma. This demonstrates lifelong dedication to the accounting profession and reflects significant career longevity among some CPAs. These individuals represent a wealth of professional experience, contributing to the stability and legacy of the accounting industry in Washington.` is {
+    group_by: First_Name
+    group_by: Middle_Name
+    group_by: Last_Name
+    group_by: `Clean_City`
+    group_by: `Years of Service`
+    order_by: `Years of Service` desc
+}
+nest: `CPAs with the Shortest License Duration: This data highlights the shortest periods of time that individuals held a CPA license in Washington State. These licenses were active for less than a year, with some lasting as little as a few months. This suggests that certain individuals may have quickly exited the profession, failed to meet ongoing requirements, or voluntarily surrendered their licenses shortly after obtaining them. This trend could reflect career changes, relocations, unmet continuing education requirements, or disciplinary actions. While most CPAs maintain their licenses for many years, this small group represents short-term engagement with the profession, offering insights into early career turnover or unplanned career shifts within the accounting field.` is {
+    group_by: `Years of Service`
+    order_by: `Years of Service` desc
+}
+nest: `Top Cities for Long-Term CPA License Holders: This data highlights the cities with the longest average CPA license holding times. CPAs from these cities have maintained their licenses for several decades, with Saint Clair Shores leading the list at an average of nearly 63 years. Other cities, including Cortez, San Jacinto, and Vaughn, also show average holding times exceeding 50 years. This data reflects a strong culture of long-term professional commitment in these locations, suggesting that CPAs in these areas may be more likely to maintain their licenses throughout their careers. It also highlights the presence of well-established professionals who have contributed to the stability and legacy of the accounting profession over the long term.` is {
+    group_by: `Clean_City`
+    aggregate: `Average` is avg(`Years of Service`)
+}
+nest: `CPA License Status Breakdown: This data provides a breakdown of CPA license statuses in Washington State. The majority of individuals (24,371 CPAs) are actively licensed to practice public accounting, while a significant number (11,125) have lapsed licenses, indicating they did not renew their credentials. Other notable categories include retired licensees (4,734) and lapsed certificate holders (4,564), showing a trend of CPAs exiting the profession over time. A smaller number hold inactive licenses (653), while suspended (154) or revoked (30) licenses reflect disciplinary actions. Additionally, some non-CPAs (102) are registered as firm owners without the ability to use the CPA title. Overall, this dataset highlights the various career stages and licensing outcomes for Washington CPAs, showing trends in retirement, non-renewal, and continued professional engagement in the field.` is {
+    group_by: Status
+    aggregate: Counted is count()
+}
+nest: `Global Overview of CPA Licensing Status: This data highlights the global distribution of CPA licenses by status, showing how different certification types are spread across various countries. The majority of licensed CPAs (24,371) are based in the United States, with notable representation in Japan, South Korea, Canada, China, and Hong Kong. Similarly, a significant number of lapsed licensees (11,125) are also concentrated in these same regions, suggesting that many CPAs do not renew their credentials after a certain period, potentially due to career shifts, retirement, or relocation. Other countries, including the United Kingdom, Taiwan, Switzerland, Germany, and the United Arab Emirates, also have CPAs with both active and lapsed statuses, demonstrating the global reach of Washington State CPA licenses. This dataset provides insights into where CPAs maintain their credentials, how many retain their licenses over time, and which regions have the highest attrition rates in CPA certification.` is {
+    group_by: Status
+    aggregate: Counted is count()
+     # bar_chart {y.independent}
+        nest: `By Country` is {
+            group_by: Country
+            aggregate: Counted is count()
+            limit: 6
+            # tooltip
+            # line_chart
+            nest: `By Year` is {
+                group_by: `Original Issue Date`.Year
+                aggregate: Counted is count()
+            }
+        }
+}
+nest: `CPA Growth Trends by City: This data provides insights into the total number of CPAs over time, grouped by city. Seattle leads with the highest number of licensed CPAs (5,747), followed by Tokyo (2,191), reflecting a significant presence of Washington State CPAs internationally. Other major hubs include Bellevue (1,720), Spokane (1,363), and Seoul (1,362), showing that CPA licenses extend beyond the United States. The presence of international cities such as Tokyo and Seoul indicates that Washington CPA credentials are valued globally, with professionals maintaining their licenses while working abroad. Additionally, smaller cities like Kirkland, Tacoma, and Vancouver also contribute to the CPA workforce, while the "Unknown" category (576) suggests records with missing or unclassified locations. This data highlights regional and international trends in CPA distribution, showcasing where licensed professionals are concentrated and how Washington CPAs are represented both domestically and worldwide.` is {
+    group_by: `Clean_City`
+    aggregate: `Total` is count()
+}
+nest: `By Year: This data presents the yearly trend of CPA licenses issued over time. The numbers fluctuate, indicating variations in new CPA certifications in Washington State. Recent Trends: The number of new licenses has remained relatively stable from 2017 to 2024, with a peak of 1,867 in 2022 and a slight decline in 2023 (1,741) and 2024 (1,794). Impact of Major Events: The COVID-19 pandemic (2020-2021) saw a dip in new licenses (1,452 in 2020), which rebounded in 2022. Declining Numbers Over Time: Compared to earlier years, 2013-2015 had fewer new licenses issued, suggesting a gradual increase in CPA interest in recent years. Future Outlook: The 2025 figure (525) suggests only partial data, but could indicate a slower start for CPA issuances that year. Overall, this dataset reflects fluctuating demand for CPA certifications, potential influences from economic and global events, and steady growth in the profession over the last decade.` is {
+    group_by: Original_Issue_Date.year
+    aggregate: Counted is count()
+}
+nest: `Geographic Breakdown of CPA Credentials: This data provides a global distribution of CPA license statuses, highlighting where professionals holding or previously holding Washington State CPA credentials are located. Active CPA Licenses: The majority (24,371) of actively licensed CPAs are based in the United States, with significant representation in Japan, South Korea, Canada, China, and Hong Kong. These numbers suggest that Washington CPA credentials are widely recognized, even outside the U.S. Lapsed Licenses: A notable portion (11,125) of CPA licenses have lapsed, with similar geographic patterns—most lapsed CPAs are in the United States, followed by Japan, South Korea, and Canada. This indicates high attrition rates in certain regions, potentially due to career changes, retirements, or non-renewals. Global Reach: Other countries, including the United Kingdom, Taiwan, Switzerland, Germany, and the United Arab Emirates, also have Washington-licensed CPAs, showing the international demand and mobility of CPA professionals. This dataset highlights the spread of Washington CPA credentials across multiple countries, providing insights into CPA workforce mobility, retention rates, and international career pathways.` is {
+    group_by: Status
+    aggregate: Counted is count()
+    # bar_chart {y.independent}
+    nest: `Status by Country` is {
+        group_by: Country
+        aggregate: Counted is count()
+        limit: 6
+        # tooltip
+        # bar_chart {y.independent}
+        nest: `By City Within Each Country` is {
+                group_by: `Clean_City`
+                aggregate: Counted is count()
+                limit: 5
+        }
+    }
+}
+
+}
+>>>malloy
+run: CPA -> {
+    group_by: `License Number`
+}
