@@ -50,19 +50,19 @@ This dataset serves as a valuable resource for regulators, policymakers, and rec
 - Only 78 records include data under the Board Order column.
 - Provides insights into CPA licensing trends, including renewal patterns and geographical distribution.
 
-<img src="./images/total license records.png" width="70%">
+<img src="./images/total license records.png" width="60%">
 
 2. By Year: This data presents the yearly trend of CPA licenses issued over time. The numbers fluctuate, indicating variations in new CPA certifications in Washington State. Recent Trends: The number of new licenses has remained relatively stable from 2017 to 2024, with a peak of 1,867 in 2022 and a slight decline in 2023 (1,741) and 2024 (1,794). Impact of Major Events: The COVID-19 pandemic (2020-2021) saw a dip in new licenses (1,452 in 2020), which rebounded in 2022. Declining Numbers Over Time: Compared to earlier years, 2013-2015 had fewer new licenses issued, suggesting a gradual increase in CPA interest in recent years. Future Outlook: The 2025 figure (525) suggests only partial data, but could indicate a slower start for CPA issuances that year. Overall, this dataset reflects fluctuating demand for CPA certifications, potential influences from economic and global events, and steady growth in the profession over the last decade.
 
-<img src="./images/by year.png" width="50%">
+<img src="./images/by year.png" width="60%">
 
 3. Geographic distribution of CPA licenses by status
 
-<img src="./images/country status.png" width="50%">
+<img src="./images/country status.png" width="60%">
 
 4. Active CPA License Holders
 
-<img src="./images/CPA Current Active Status.png" width="50%">
+<img src="./images/CPA Current Active Status.png" width="60%">
 
 5. Current CPA Licensing Status
 
@@ -73,7 +73,7 @@ This dataset serves as a valuable resource for regulators, policymakers, and rec
 - Helps track the number of CPAs who remain active versus those who leave the profession.
 - Provides insight into license status trends over time and professional retention.
 
-<img src="./images/current licensing status.png" width="50%">
+<img src="./images/current licensing status.png" width="60%">
 
 6. Leading 10 Cities for CPAs
 
@@ -95,7 +95,7 @@ This dataset serves as a valuable resource for regulators, policymakers, and rec
 
 - The distribution highlights the importance of CPAs in major business hubs both in the U.S. and globally.
 
-<img src="./images/leading 10 cities.png" width="50%">
+<img src="./images/leading 10 cities.png" width="60%">
 
 7. Global Distribution of Washington CPAs
 
@@ -115,7 +115,7 @@ This dataset serves as a valuable resource for regulators, policymakers, and rec
 - It highlights the international mobility of accounting professionals.
 - The data reflects the strong presence of Washington CPAs in key economic regions, particularly in Asia.
 
-<img src="./images/location.png" width="50%">
+<img src="./images/location.png" width="60%">
 
 8. Number of Licensed CPAs Changed Over Time
 
@@ -133,7 +133,7 @@ This dataset serves as a valuable resource for regulators, policymakers, and rec
     - Shifts in demand for accounting professionals
 - Understanding these trends helps assess the pace of CPA licensing over time.
 
-<img src="./images/number changed time.png" width="50%">
+<img src="./images/number changed time.png" width="60%">
 
 9. CPA License Status Breakdown by Percentage in Washington
 
@@ -151,7 +151,7 @@ This dataset serves as a valuable resource for regulators, policymakers, and rec
 - This data provides insights into the overall retention and turnover of CPAs in Washington.
 - Helps identify how many professionals remain active versus those who exit, retire, or lose their license over time.
 
-<img src="./images/percentage.png" width="50%">
+<img src="./images/percentage.png" width="60%">
 
 10. Top 5 CPAs with the Longest Careers Before Revocation or Suspension
 
@@ -163,7 +163,7 @@ This dataset serves as a valuable resource for regulators, policymakers, and rec
 - These cases emphasize the importance of compliance and ethical standards in the accounting profession.
 - The dataset provides insights into long-serving CPAs who later faced disciplinary measures.
 
-<img src="./images/suspension.png" width="50%">
+<img src="./images/suspension.png" width="60%">
 
 11. Top 20 Cities with the Highest Number of CPA Licenses in Washington
 
@@ -174,7 +174,7 @@ This dataset serves as a valuable resource for regulators, policymakers, and rec
 - Employers, firms, and policymakers can use this data to understand CPA workforce distribution.
 - This information is valuable for recruitment, policy planning, and regional economic analysis.
 
-<img src="./images/top 20 cities.png" width="50%">
+<img src="./images/top 20 cities.png" width="60%">
 
 12. Historical Trend Analysis (1910-2010)
 
@@ -185,7 +185,7 @@ This dataset serves as a valuable resource for regulators, policymakers, and rec
 - Enables pattern recognition, spotting anomalies, and connecting historical context to the data.
 - Provides a valuable tool for time-series analysis across different fields.
 
-<img src="./images/trend.png" width="50%">
+<img src="./images/trend.png" width="60%">
 
 ## Data Source  
 The data originates from the **Washington State Board of Accountancy** and is publicly available through the **Washington State Open Data Portal**. It includes information on individuals who currently hold or have previously held CPA credentials in Washington. The data is collected and maintained by the Washington State Open Data Portal. Each record represents an individual who currently holds or has previously held credentials issued by the Washington State Board of Accountancy.
