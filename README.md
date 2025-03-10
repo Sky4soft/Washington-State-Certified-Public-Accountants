@@ -215,11 +215,6 @@ This repository contains one Malloy code files:
 
 👉 **[Click here to view the dataset](https://data.wa.gov/Consumer-Protection/Washington-State-Certified-Public-Accountants/6du3-3h9e)** 
 
-## 📊 Key Visualizations
-- **License Issuance Over Time** (line chart)
-- **Top Cities for CPAs** (bar chart)
-- **License Status Breakdown** (bar chart)
-
 ## Further Assistance and Resources
 
 - **[Washington State Board of Accountancy](https://acb.wa.gov/)** – Regulatory Body for CPA Licensing in Washington State.
