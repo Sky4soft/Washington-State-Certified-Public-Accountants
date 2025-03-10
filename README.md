@@ -263,11 +263,11 @@ Once on Github, click Shift + period this will load the web editor. Then install
 
 | **Step**   | **Image Preview** |
 |--------|-----------|
-| `Step 1 - Press allow` | <images src="step1.png" width="50%"> |
-| `Step 2 - Click the Blocks, search for Malloy, install` | <images src="step2.png" width="50%"> |
-| `Step 3 - Click Trust` | <images src="step3.png" width="50%"> |
-| `Step 4 - Click a .malloynb file` | <images src="step4.png" width="50%"> |
-| `Step 5 - Press Run` | <images src="step5.png" width="50%"> |
+| `Step 1 - Press allow` | <img src="./images/step1.png" width="50%"> |
+| `Step 2 - Click the Blocks, search for Malloy, install` | <img src="./images/step2.png" width="50%"> |
+| `Step 3 - Click Trust` | <img src="./images/step3.png" width="50%"> |
+| `Step 4 - Click a .malloynb file` | <img src="./images/step4.png" width="50%"> |
+| `Step 5 - Press Run` | <img src="./images/step5.png" width="50%"> |
 
 ## Questions for Analysis
 1. What are the trends in CPA licensing, including renewals, geographic distribution, and lapsed or board-ordered licenses?
