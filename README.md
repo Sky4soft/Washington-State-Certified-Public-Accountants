@@ -50,7 +50,7 @@ This dataset serves as a valuable resource for regulators, policymakers, and rec
 - Only 78 records include data under the Board Order column.
 - Provides insights into CPA licensing trends, including renewal patterns and geographical distribution.
 
-<img src="./images/total license records.png" width="50%">
+<img src="./images/total license records.png" width="70%">
 
 2. By Year: This data presents the yearly trend of CPA licenses issued over time. The numbers fluctuate, indicating variations in new CPA certifications in Washington State. Recent Trends: The number of new licenses has remained relatively stable from 2017 to 2024, with a peak of 1,867 in 2022 and a slight decline in 2023 (1,741) and 2024 (1,794). Impact of Major Events: The COVID-19 pandemic (2020-2021) saw a dip in new licenses (1,452 in 2020), which rebounded in 2022. Declining Numbers Over Time: Compared to earlier years, 2013-2015 had fewer new licenses issued, suggesting a gradual increase in CPA interest in recent years. Future Outlook: The 2025 figure (525) suggests only partial data, but could indicate a slower start for CPA issuances that year. Overall, this dataset reflects fluctuating demand for CPA certifications, potential influences from economic and global events, and steady growth in the profession over the last decade.
 
